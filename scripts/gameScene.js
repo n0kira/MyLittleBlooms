@@ -11,7 +11,7 @@ export class GameScene extends Phaser.Scene {
   
   preload() {
     // runs once before create()
-    this.load.image("vaseTexture", "/assets/vase.png")
+    this.load.image("vaseTexture", "assets/vase.png")
   }
 
   create() {
