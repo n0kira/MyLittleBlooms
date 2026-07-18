@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/phaser@4.1.0/dist/phaser.min.js"></script>
+    <title>My Little Blooms</title>
+</head>
+<body>
+
+    <div id="coinCounter" style="text-align: center; font-size: 30px; position: absolute; top: 10px; left: calc(50% - 30px);">Coins: 0</div>
+    
+    <div id="gameContainer">
+        <div id="toolbar">
+            <div id="openPlantSelection">▷ Plant Selection</div>
+            <div id="plantSelection" style="display: none;">
+                <div class="plantSeed">Rose</div>
+                <div class="plantSeed">Tulip</div>
+                <div class="plantSeed">Sunflower</div>
+            </div>
+
+            <div id="openPlantInventory">▷ Inventory <span id="sellAllButton">Sell All</span></div>
+            <div id="plantInventory" style="display: none;">
+                <span id="emptyInventory">Collected plants will be shown here</span>
+            </div>
+        </div>
+        <div id="gameWindow"> <!-- Game canvas --> </div>
+        <div id="plantInfo" class="hidden">
+            <span id="emptyPlantInfo">Select a plant to see info</span>
+            <div id="plantInfoTitle"></div>
+            <div id="plantInfoWater"></div>
+            <div id="plantInfoGrowthDays"></div>
+            <div id="plantInfoCurrentDays"></div>
+            <div id="plantInfoUnhealthyDays"></div>
+            <div id="plantInfoValue"></div>
+            <div id="waterBtn"></div>
+            <div id="harvestBtn"></div>
+        </div>
+    </div>
+
+    <div id="dayCounter">Day 1</div>
+
+    <div id="bottomHUD">
+        <button id="advanceDayBtn">Advance day</button>
+    </div>
+    
+
+    <script src="scripts/main.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background-color: antiquewhite;
+}
+
+canvas {
+  border: 6px pink solid;
+  border-radius: 12px;
+}
+
+button {
+  cursor: pointer;
+}
+
+#dayCounter {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  color: white;
+  font-size: 20px;
+}
+
+#bottomHUD {
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+#waterBtn:hover, #harvestBtn {
+  cursor: pointer;
+}
+
+#plantInfo, #toolbar {
+  background: rgba(255, 255, 255, 0.74);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 10px 14px;
+  width: 100%;
+}
+
+#plantInfo.hidden * {
+  display: none;
+}
+
+#plantInfo.hidden {
+  visibility: hidden;
+}
+
+#emptyPlantInfo, #emptyInventory {
+  color: #888;
+  font-size: 14px;
+}
+
+#gameContainer {
+  display: flex;
+  justify-content: center;
+  height: 80vh;
+  margin-top: 10vh;
+  user-select: none;
+}
+
+.collectedPlant {
+  display: flex;
+  justify-content: space-between;
+}
