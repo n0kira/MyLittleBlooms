@@ -68,7 +68,18 @@ button {
   user-select: none;
 }
 
+#openPlantInventory {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .collectedPlant {
+  display: flex;
+  justify-content: space-between;
+}
+
+.plantSeed {
   display: flex;
   justify-content: space-between;
 }

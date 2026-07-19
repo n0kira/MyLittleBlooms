@@ -5,20 +5,23 @@ export const PLANT_DATA = {
     maxWater: 100,
     starterWater: 50,
     growthDays: 5,
-    value: 20
+    value: 20,
+    cost: 15
   },
   Tulip: {
     minWater: 20,
     maxWater: 90,
     starterWater: 50,
     growthDays: 3,
-    value: 10
+    value: 10,
+    cost: 7
   },
   Sunflower: {
     minWater: 40,
     maxWater: 100,
     starterWater: 60,
     growthDays: 7,
-    value: 30
+    value: 30,
+    cost: 22
   },
 }

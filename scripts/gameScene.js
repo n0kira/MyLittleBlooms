@@ -2,6 +2,7 @@ import { GameManager } from "./gameManager.js";
 import { Plant } from "./plant.js";
 import { Vase } from "./vase.js";
 import { PLANT_DATA } from "./plantData.js";
+import { LockedVase } from "./lockedVase.js";
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -11,23 +12,35 @@ export class GameScene extends Phaser.Scene {
   
   preload() {
     // runs once before create()
-    this.load.image("vaseTexture", "assets/vase.png")
+    this.load.image("background", "assets/game_view_sketch.png");
+    this.load.image("lockedTexture", "assets/lockedVase.png");
+    this.load.image("vaseTexture", "assets/vase.png");
   }
 
   create() {
     // runs once
+    this.add.image(640, 360, "background")
+
     this.collectedPlants = new Map();
     this.plants = [];
     this.selectedPlantType = null;
+    this.lockedVases = [];
+    this.vases = [];
 
-    this.vases = [
-      new Vase(this, 400, 300),
-      new Vase(this, 500, 300),
-      new Vase(this, 600, 300),
-      new Vase(this, 700, 300),
-    ];
+    const save = localStorage.getItem("gameData");
+    if (save) {
+      this.loadGame();
+    } else {
+      this.lockedVases = [
+        new LockedVase(this, 400, 270, 70),
+        new LockedVase(this, 800, 270, 100),
+        new LockedVase(this, 900, 270, 100),  
+      ];
 
-    this.loadGame();
+      this.vases = [
+        new Vase(this, 300, 270)
+      ];
+    }
 
     document.getElementById('dayCounter').textContent = "Day: " + GameManager.currentDay;
     document.getElementById('coinCounter').textContent = "Coins: " + GameManager.coins;
@@ -43,6 +56,7 @@ export class GameScene extends Phaser.Scene {
       if (!this.selectedPlant) return;
       this.selectedPlant.water();
       this.showPlantInfo(this.selectedPlant);
+      this.saveGame();
     });
 
 
@@ -67,40 +81,46 @@ export class GameScene extends Phaser.Scene {
       this.saveGame();
     });
 
+    // Generate all plants inside of the plant selection
+    const plantSel = document.getElementById('plantSelection');
+    Object.entries(PLANT_DATA).forEach(([plantName, data]) => {
+      const div = plantSel.appendChild(document.createElement("div"));
+      div.classList.add("plantSeed");
+      div.textContent = plantName;
+
+      const span = div.appendChild(document.createElement("span"));
+      span.textContent = ` ${data.cost} coins`;
+    });
 
     // EXPAND THE PLANT SELECTION
     document.getElementById('openPlantSelection').addEventListener("click", () => {
       const plantSel = document.getElementById('plantSelection');
-      const opentPlantSel = document.getElementById('openPlantSelection');
+      const openPlantSel = document.getElementById('openPlantSelection');
 
       if (plantSel.style.display == "none") {
         plantSel.style.display = "block";
-        opentPlantSel.textContent = "▽ Plant Selection";
+        openPlantSel.textContent = "▽ Plant Selection";
       } else {
         plantSel.style.display = "none";
-        opentPlantSel.textContent = "▷ Plant Selection";
+        openPlantSel.textContent = "▷ Plant Selection";
       }
-
     });
 
 
     // EXPAND THE INVENTORY
-    document.getElementById('openPlantInventory').addEventListener("click", () => {
+    document.getElementById('openPlantInventory').addEventListener("click", (e) => {
+      if (e.target.id !== "inventoryText") return;
+
       const plantInv = document.getElementById('plantInventory');
-      const openPlantInv = document.getElementById('openPlantInventory');
+      const inventoryText = document.getElementById('inventoryText');
 
       if (plantInv.style.display == "none") {
         plantInv.style.display = "block";
-        openPlantInv.textContent = "▽ Inventory";
-        if (this.collectedPlants.size == 0) {
-          document.getElementById('emptyInventory').style.display = "";
-        } else {
-          document.getElementById('emptyInventory').style.display = "none";
-        }
-        
+        inventoryText.innerHTML = "▽ Inventory";
+        this.showInventory();
       } else {
         plantInv.style.display = "none";
-        openPlantInv.textContent = "▷ Inventory";
+        inventoryText.innerHTML = "▷ Inventory";
       }
 
     });
@@ -126,11 +146,30 @@ export class GameScene extends Phaser.Scene {
       this.saveGame();
     });
 
+    // SELL ALL PLANTS IN THE INVENTORY
+    document.getElementById('openPlantInventory').addEventListener("click", (e) => {
+      if (e.target.id !== "sellAllButton") return;
+
+      this.collectedPlants.forEach((count, plant) => {
+        if (count <= 0) return;
+        const data = PLANT_DATA[plant];
+        if (!data) return;
+
+        this.collectedPlants.set(plant, 0);
+        GameManager.coins += data.value * count;
+      });
+
+      this.showInventory();
+      document.getElementById('coinCounter').textContent = "Coins: " + GameManager.coins;
+      this.saveGame();
+    });
+
 
     // SELECT THE PLANT
     document.getElementById('plantSelection').addEventListener("click", (e) => {
       if (!e.target.classList.contains("plantSeed")) return;
-      this.selectedPlantType = e.target.textContent;
+      this.selectedPlantType = e.target.textContent.split(" ")[0];
+      console.log(this.selectedPlantType)
     });
 
 
@@ -221,9 +260,18 @@ export class GameScene extends Phaser.Scene {
     const data = PLANT_DATA[this.selectedPlantType];
     if (!data) return;
 
+    const cost = data.cost;
+
+    if (GameManager.coins < cost) {
+      alert("Insufficient coins!");
+      return;
+    }
+
     // Create the plant with all the data retrieved
     const newPlant = new Plant(this, vase.x, vase.y, this.selectedPlantType, data.maxWater, data.minWater, data.starterWater, data.growthDays, vase, data.value);
-
+    GameManager.coins -= cost;
+    
+    document.getElementById('coinCounter').textContent = "Coins: " + GameManager.coins;
     alert("Planted: " + this.selectedPlantType);
     this.plants.push(newPlant);
     // Hide the vase and flag is as full
@@ -248,8 +296,12 @@ export class GameScene extends Phaser.Scene {
 
   // UPDATE THE INVENTORY UI
   showInventory() {
-    if (this.collectedPlants.size == 0) {
-      document.getElementById('emptyInventory').style.display = "";
+    let totalCount = 0;
+    this.collectedPlants.forEach((count, plant) => {
+      if (count >= 1) totalCount += count;
+    });
+    if (this.collectedPlants.size == 0 || totalCount == 0) {
+      document.getElementById('emptyInventory').style.display = "block";
     } else {
       document.getElementById('emptyInventory').style.display = "none";
     }
@@ -287,9 +339,26 @@ export class GameScene extends Phaser.Scene {
       };
     });
 
+    const vasesData = this.vases.map(vase => {
+      return {
+        x: vase.x,
+        y: vase.y,
+      }
+    });
+
+    const lockedData = this.lockedVases.map(vase => {
+      return {
+        x: vase.x,
+        y: vase.y,
+        price: vase.price,
+      }
+    })
+
     const saveData = {
       collectedPlants: Array.from(this.collectedPlants.entries()),
       plants: plantsData,
+      vases: vasesData,
+      lockedVases: lockedData,
       currentDay: GameManager.currentDay,
       coins: GameManager.coins
     };
@@ -308,6 +377,10 @@ export class GameScene extends Phaser.Scene {
 
     this.collectedPlants = new Map(saveData.collectedPlants);
 
+    this.vases = saveData.vases.map(vase => new Vase(this, vase.x, vase.y));
+
+    this.lockedVases = saveData.lockedVases.map(vase => new LockedVase(this, vase.x, vase.y, vase.price));
+
     saveData.plants.forEach(plant => {
       const vase = this.vases[plant.vaseIndex];
       const data = PLANT_DATA[plant.plantName];
@@ -320,5 +393,26 @@ export class GameScene extends Phaser.Scene {
       vase.isEmpty = false;
       vase.setVisible(false);
     });
+  }
+
+  unlock(vase) {
+    if (GameManager.coins < vase.price) {
+      alert("Too expensive :P");
+      return;
+    }
+
+    GameManager.coins -= vase.price;
+    const newVase = new Vase(this, vase.x, vase.y);
+    this.vases.push(newVase);
+
+    const index = this.lockedVases.indexOf(vase);
+    if (index != -1) {
+      this.lockedVases.splice(index, 1);
+    }
+
+    vase.destroy();
+
+    document.getElementById('coinCounter').textContent = "Coins: " + GameManager.coins;
+    this.saveGame();
   }
 }

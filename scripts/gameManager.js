@@ -4,7 +4,7 @@ class GameManagerClass extends Phaser.Events.EventEmitter {
   constructor() {
     super();
     this.currentDay = 1;
-    this.coins = 0;
+    this.coins = 100;
   }
 
   // Signal to make the game advance
