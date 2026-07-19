@@ -6,7 +6,8 @@ export const PLANT_DATA = {
     starterWater: 50,
     growthDays: 5,
     value: 20,
-    cost: 15
+    cost: 15,
+    growthCheckpoint: [2, 4]
   },
   Tulip: {
     minWater: 20,
@@ -14,7 +15,8 @@ export const PLANT_DATA = {
     starterWater: 50,
     growthDays: 3,
     value: 10,
-    cost: 7
+    cost: 7,
+    growthCheckpoint: [1, 3]
   },
   Sunflower: {
     minWater: 40,
@@ -22,6 +24,7 @@ export const PLANT_DATA = {
     starterWater: 60,
     growthDays: 7,
     value: 30,
-    cost: 22
+    cost: 22,
+    growthCheckpoint: [2, 6]
   },
 }

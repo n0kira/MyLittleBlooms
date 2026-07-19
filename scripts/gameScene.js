@@ -15,6 +15,9 @@ export class GameScene extends Phaser.Scene {
     this.load.image("background", "assets/game_view_sketch.png");
     this.load.image("lockedTexture", "assets/lockedVase.png");
     this.load.image("vaseTexture", "assets/vase.png");
+    this.load.image("rose", "assets/rose_stage_3.png");
+    this.load.image("tulip", "assets/tulip_stage_3.png");
+    this.load.image("sunflower", "assets/sunflower_stage_3.png");
   }
 
   create() {
@@ -32,13 +35,13 @@ export class GameScene extends Phaser.Scene {
       this.loadGame();
     } else {
       this.lockedVases = [
-        new LockedVase(this, 400, 270, 70),
-        new LockedVase(this, 800, 270, 100),
-        new LockedVase(this, 900, 270, 100),  
+        new LockedVase(this, 400, 260, 70),
+        new LockedVase(this, 800, 260, 100),
+        new LockedVase(this, 900, 260, 100),  
       ];
 
       this.vases = [
-        new Vase(this, 300, 270)
+        new Vase(this, 300, 260)
       ];
     }
 

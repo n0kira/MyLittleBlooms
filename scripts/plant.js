@@ -1,9 +1,10 @@
 import { GameManager } from "./gameManager.js";
+import { PLANT_DATA } from "./plantData.js";
 
 // Create a plant scene
 export class Plant extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y, plantName, maxWaterLevel, minWaterLevel, starterWater, growthDays, vase, value) {
-    super(scene, x, y, "plantTexture");
+    super(scene, x, y, plantName.toLowerCase());
     scene.add.existing(this);
 
     // Assign all data to the created plant
@@ -82,5 +83,14 @@ export class Plant extends Phaser.GameObjects.Sprite {
       this.daysUnhealthy = 0;
       this.currentDays += 1;
     }
+  }
+
+  // CHANGE TEXTURE BASED ON GROWTH STATUS
+  growthChange() {
+    const checkpoints = PLANT_DATA[this.plantName].growthCheckpoint;
+
+    if (this.currentDays < checkpoints[0]) return 1;
+    if (this.currentDays < checkpoints[1]) return 2;
+    return 3;
   }
 }
