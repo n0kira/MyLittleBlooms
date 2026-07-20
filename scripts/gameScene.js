@@ -33,7 +33,8 @@ export class GameScene extends Phaser.Scene {
 
     const dayDuration = 1000 * 60 * 2
     setInterval(advanceDay, dayDuration);
-
+ 
+    // DAY CYCLE
     function advanceDay() {
       GameManager.advanceDay();
     }
@@ -201,8 +202,6 @@ export class GameScene extends Phaser.Scene {
       this.showPlantInfo(this.selectedPlant);
     });
 
-
-    // DAY CYCLE
   }
 
   /*
