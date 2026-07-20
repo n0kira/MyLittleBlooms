@@ -26,15 +26,6 @@ button {
   font-size: 20px;
 }
 
-#bottomHUD {
-  position: absolute;
-  bottom: 12%;
-  left: 50%;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
 #waterBtn:hover, #harvestBtn {
   cursor: pointer;
 }
@@ -63,7 +54,7 @@ button {
 #gameContainer {
   display: flex;
   justify-content: center;
-  height: 80vh;
+  height: 732px;
   margin-top: 10vh;
   user-select: none;
 }

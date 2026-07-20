@@ -12,17 +12,31 @@ export class GameScene extends Phaser.Scene {
   
   preload() {
     // runs once before create()
-    this.load.image("background", "assets/game_view_sketch.png");
+    this.load.image("background", "assets/background.png");
     this.load.image("lockedTexture", "assets/lockedVase.png");
     this.load.image("vaseTexture", "assets/vase.png");
-    this.load.image("rose", "assets/rose_stage_3.png");
-    this.load.image("tulip", "assets/tulip_stage_3.png");
-    this.load.image("sunflower", "assets/sunflower_stage_3.png");
-  }
+    this.load.image("rose_stage_1", "assets/rose_stage_1.png");
+    this.load.image("rose_stage_2", "assets/rose_stage_2.png");
+    this.load.image("rose_stage_3", "assets/rose_stage_3.png");
+    this.load.image("tulip_stage_1", "assets/tulip_stage_1.png");
+    this.load.image("tulip_stage_2", "assets/tulip_stage_2.png");
+    this.load.image("tulip_stage_3", "assets/tulip_stage_3.png");
+    this.load.image("sunflower_stage_1", "assets/sunflower_stage_1.png");
+    this.load.image("sunflower_stage_2", "assets/sunflower_stage_2.png");
+    this.load.image("sunflower_stage_3", "assets/sunflower_stage_3.png");
 
+  }
+  
   create() {
     // runs once
     this.add.image(640, 360, "background")
+
+    const dayDuration = 1000 * 60 * 2
+    setInterval(advanceDay, dayDuration);
+
+    function advanceDay() {
+      GameManager.advanceDay();
+    }
 
     this.collectedPlants = new Map();
     this.plants = [];
@@ -35,23 +49,19 @@ export class GameScene extends Phaser.Scene {
       this.loadGame();
     } else {
       this.lockedVases = [
-        new LockedVase(this, 400, 260, 70),
-        new LockedVase(this, 800, 260, 100),
-        new LockedVase(this, 900, 260, 100),  
+        new LockedVase(this, 400, 475, 70),
+        new LockedVase(this, 800, 475, 100),
+        new LockedVase(this, 900, 475, 100),  
       ];
 
       this.vases = [
-        new Vase(this, 300, 260)
+        new Vase(this, 300, 475)
       ];
     }
 
     document.getElementById('dayCounter').textContent = "Day: " + GameManager.currentDay;
     document.getElementById('coinCounter').textContent = "Coins: " + GameManager.coins;
     this.showInventory();
-
-    document.getElementById('advanceDayBtn').addEventListener("click", () => {
-      GameManager.advanceDay();
-    });
 
 
     // WATER CURRENTLY SELECTED PLANT
@@ -191,6 +201,8 @@ export class GameScene extends Phaser.Scene {
       this.showPlantInfo(this.selectedPlant);
     });
 
+
+    // DAY CYCLE
   }
 
   /*

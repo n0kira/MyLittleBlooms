@@ -4,7 +4,7 @@ import { PLANT_DATA } from "./plantData.js";
 // Create a plant scene
 export class Plant extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y, plantName, maxWaterLevel, minWaterLevel, starterWater, growthDays, vase, value) {
-    super(scene, x, y, plantName.toLowerCase());
+    super(scene, x, y, plantName.toLowerCase() + "_stage_1");
     scene.add.existing(this);
 
     // Assign all data to the created plant
@@ -20,6 +20,7 @@ export class Plant extends Phaser.GameObjects.Sprite {
     this.currentDays = 0;
     this.daysUnhealthy = 0;
     this.isDead = false;
+    this.currentStage = 1;
     
     // Make the plant interactive by showing the info on click
     this.setInteractive({useHandCursor: true});
@@ -82,6 +83,12 @@ export class Plant extends Phaser.GameObjects.Sprite {
     } else {
       this.daysUnhealthy = 0;
       this.currentDays += 1;
+    }
+
+    const stage = this.growthChange();
+    if (stage != this.currentStage) {
+      this.currentStage = stage;
+      this.setTexture(this.plantName.toLowerCase() + "_stage_" + this.currentStage);
     }
   }
 
