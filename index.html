@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <div id="coinCounter" style="text-align: center; font-size: 30px; position: absolute; top: 10px; left: calc(50% - 30px);">Coins: 0</div>
+    <div id="coinCounter" style="text-align: center; font-size: 35px; position: absolute; top: 10px; left: calc(50% - 70px);">Coins: 0</div>
     
     <div id="gameContainer">
         <div id="toolbar">
@@ -24,13 +24,14 @@
         <div id="gameWindow"> <!-- Game canvas --> </div>
         <div id="plantInfo" class="hidden">
             <span id="emptyPlantInfo">Select a plant to see info</span>
+            <img src="" id="plantInfoImage">
             <div id="plantInfoTitle"></div>
             <div id="plantInfoWater"></div>
             <div id="plantInfoGrowthDays"></div>
             <div id="plantInfoCurrentDays"></div>
             <div id="plantInfoUnhealthyDays"></div>
             <div id="plantInfoValue"></div>
-            <div id="waterBtn"></div>
+            <div id="waterBtn"><img src="assets/watering_can.png" alt=""></div>
             <div id="harvestBtn"></div>
         </div>
     </div>

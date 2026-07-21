@@ -20,6 +20,7 @@ export class Plant extends Phaser.GameObjects.Sprite {
     this.currentDays = 0;
     this.daysUnhealthy = 0;
     this.isDead = false;
+    this.isGrown = false;
     this.currentStage = 1;
     
     // Make the plant interactive by showing the info on click
@@ -47,6 +48,8 @@ export class Plant extends Phaser.GameObjects.Sprite {
 
     // Block action if the plant isn't ready for harvest
     if (!(this.isDead || this.isGrown)) {
+      console.log(this.isDead);
+      console.log(this.isGrown)
       alert("Can't harvest " + this.plantName + "!!")
       return false;
     }
@@ -85,19 +88,23 @@ export class Plant extends Phaser.GameObjects.Sprite {
       this.currentDays += 1;
     }
 
-    const stage = this.growthChange();
+    this.growthChange();
+
+  }
+  
+  // CHANGE TEXTURE BASED ON GROWTH STATUS
+  growthChange() {
+    const checkpoints = PLANT_DATA[this.plantName].growthCheckpoint;
+    let stage = 0;
+    
+    if (this.isDead) stage = 1;
+    else if (this.currentDays < checkpoints[0]) stage = 1;
+    else if (this.currentDays < checkpoints[1]) stage = 2;
+    else stage = 3;
+    
     if (stage != this.currentStage) {
       this.currentStage = stage;
       this.setTexture(this.plantName.toLowerCase() + "_stage_" + this.currentStage);
     }
-  }
-
-  // CHANGE TEXTURE BASED ON GROWTH STATUS
-  growthChange() {
-    const checkpoints = PLANT_DATA[this.plantName].growthCheckpoint;
-
-    if (this.currentDays < checkpoints[0]) return 1;
-    if (this.currentDays < checkpoints[1]) return 2;
-    return 3;
   }
 }

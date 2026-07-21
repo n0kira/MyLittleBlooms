@@ -10,7 +10,7 @@ body {
 }
 
 canvas {
-  border: 6px pink solid;
+  border: 6px solid;
   border-radius: 12px;
 }
 
@@ -21,8 +21,8 @@ button {
 #dayCounter {
   position: absolute;
   top: 12%;
-  left: 50%;
-  color: white;
+  left: calc(50% - 35px);
+  color: rgb(0, 0, 0);
   font-size: 20px;
 }
 
@@ -36,6 +36,21 @@ button {
   border-radius: 8px;
   padding: 10px 14px;
   width: 100%;
+  border: solid 6px;
+}
+
+#plantInfo {
+  text-align: center;
+}
+
+#plantInfoImage {
+  border: solid;
+  border-radius: 12px;
+}
+
+#plantInfoTitle {
+  font-size: 32px;
+  border: none;
 }
 
 #plantInfo.hidden * {
@@ -44,6 +59,13 @@ button {
 
 #plantInfo.hidden {
   visibility: hidden;
+}
+
+#plantInfo  div {
+  width: 100%;
+  border: solid 2px black;
+  margin: 1px;
+  border-radius: 20px;
 }
 
 #emptyPlantInfo, #emptyInventory {
@@ -63,6 +85,10 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+#inventoryText, #openPlantSelection {
+  font-size: 28px;
 }
 
 .collectedPlant {

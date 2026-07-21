@@ -13,7 +13,7 @@ export class GameScene extends Phaser.Scene {
   preload() {
     // runs once before create()
     this.load.image("background", "assets/background.png");
-    this.load.image("lockedTexture", "assets/lockedVase.png");
+    this.load.image("lockedTexture", "assets/locked_vase.png");
     this.load.image("vaseTexture", "assets/vase.png");
     this.load.image("rose_stage_1", "assets/rose_stage_1.png");
     this.load.image("rose_stage_2", "assets/rose_stage_2.png");
@@ -50,13 +50,21 @@ export class GameScene extends Phaser.Scene {
       this.loadGame();
     } else {
       this.lockedVases = [
-        new LockedVase(this, 400, 475, 70),
-        new LockedVase(this, 800, 475, 100),
-        new LockedVase(this, 900, 475, 100),  
+        new LockedVase(this, 390, 475, 35),
+        new LockedVase(this, 545, 475, 35),
+        
+        new LockedVase(this, 735, 475, 75),
+        new LockedVase(this, 895, 475, 75),  
+        new LockedVase(this, 1035, 475, 75),
+        
+        new LockedVase(this, 975, 600, 125),
+        new LockedVase(this, 825, 600, 125),
+        new LockedVase(this, 475, 600, 125),
+        new LockedVase(this, 335, 600, 125),
       ];
 
       this.vases = [
-        new Vase(this, 300, 475)
+        new Vase(this, 250, 475)
       ];
     }
 
@@ -87,7 +95,10 @@ export class GameScene extends Phaser.Scene {
       }
 
       // Early return in case the plant has died, no reward
-      if (this.selectedPlant.isDead) return;
+      if (this.selectedPlant.isDead){
+        this.saveGame();
+        return;
+      }
 
       // Add to inventory if the plant was all good
       this.addToInventory(this.selectedPlant.plantName);
@@ -183,7 +194,6 @@ export class GameScene extends Phaser.Scene {
     document.getElementById('plantSelection').addEventListener("click", (e) => {
       if (!e.target.classList.contains("plantSeed")) return;
       this.selectedPlantType = e.target.textContent.split(" ")[0];
-      console.log(this.selectedPlantType)
     });
 
 
@@ -257,13 +267,13 @@ export class GameScene extends Phaser.Scene {
     // Display all the info
     this.selectedPlant = plant
     document.getElementById('emptyPlantInfo').style.display = "none";
+    document.getElementById('plantInfoImage').src = `assets/${plant.plantName}_stage_${plant.currentStage}.png`;
     document.getElementById('plantInfoTitle').textContent = plant.plantName;
     document.getElementById('plantInfoWater').textContent = "Water: " + plant.waterLevel;
     document.getElementById('plantInfoGrowthDays').textContent = "Days to grow: " + plant.growthDays;
     document.getElementById('plantInfoCurrentDays').textContent = "Days alive: " + plant.currentDays;
     document.getElementById('plantInfoUnhealthyDays').textContent = "Days unhealthy: " + plant.daysUnhealthy;
     document.getElementById('plantInfoValue').textContent = "Value: " + plant.value + " coins";
-    document.getElementById('waterBtn').textContent = "Water";
     document.getElementById('harvestBtn').textContent = "Harvest";
     document.getElementById('plantInfo').classList.remove("hidden");
   }
@@ -349,6 +359,8 @@ export class GameScene extends Phaser.Scene {
         waterLevel: plant.waterLevel,
         currentDays: plant.currentDays,
         daysUnhealthy: plant.daysUnhealthy,
+        isGrown: plant.isGrown,
+        isDead: plant.isDead,
         vaseIndex: this.vases.indexOf(plant.vase)
       };
     });
@@ -402,6 +414,10 @@ export class GameScene extends Phaser.Scene {
     
       newPlant.currentDays = plant.currentDays;
       newPlant.daysUnhealthy = plant.daysUnhealthy;
+      newPlant.isGrown = plant.isGrown;
+      newPlant.isDead = plant.isDead;
+
+      newPlant.growthChange();
 
       this.plants.push(newPlant);
       vase.isEmpty = false;

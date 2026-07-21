@@ -6,7 +6,7 @@ const config = {
   width: 1280,
   height: 720,
   parent: 'gameWindow',
-  backgroundColor: '#333',
+  backgroundColor: '#76aee3',
   scene: [GameScene]
 };
 
