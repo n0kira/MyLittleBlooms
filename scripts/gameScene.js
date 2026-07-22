@@ -274,7 +274,6 @@ export class GameScene extends Phaser.Scene {
     document.getElementById('plantInfoCurrentDays').textContent = "Days alive: " + plant.currentDays;
     document.getElementById('plantInfoUnhealthyDays').textContent = "Days unhealthy: " + plant.daysUnhealthy;
     document.getElementById('plantInfoValue').textContent = "Value: " + plant.value + " coins";
-    document.getElementById('harvestBtn').textContent = "Harvest";
     document.getElementById('plantInfo').classList.remove("hidden");
   }
 
