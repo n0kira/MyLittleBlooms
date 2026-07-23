@@ -54,6 +54,20 @@ export class Plant extends Phaser.GameObjects.Sprite {
       return false;
     }
 
+    const text = this.scene.add.text(this.x, this.y, `+${this.value}`, {
+      fontFamily: "Arial",
+      fontSize: "18px",
+      color: "#ffd700"
+    }).setOrigin(0.5);
+
+    this.scene.tweens.add({
+      targets: text,
+      y: this.y - 40,
+      alpha: 0,
+      duration: 1000,
+      onComplete: () => text.destroy()
+    })
+
     // Rstore the empty vase
     this.vase.isEmpty = true;
     this.vase.setVisible(true);

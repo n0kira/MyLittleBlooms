@@ -3,6 +3,7 @@ import { Plant } from "./plant.js";
 import { Vase } from "./vase.js";
 import { PLANT_DATA } from "./plantData.js";
 import { LockedVase } from "./lockedVase.js";
+import { Bug } from "./bug.js";
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -24,7 +25,7 @@ export class GameScene extends Phaser.Scene {
     this.load.image("sunflower_stage_1", "assets/sunflower_stage_1.png");
     this.load.image("sunflower_stage_2", "assets/sunflower_stage_2.png");
     this.load.image("sunflower_stage_3", "assets/sunflower_stage_3.png");
-
+    this.load.image("bugTexture", "assets/bug.png");
   }
   
   create() {
@@ -50,23 +51,33 @@ export class GameScene extends Phaser.Scene {
       this.loadGame();
     } else {
       this.lockedVases = [
-        new LockedVase(this, 390, 475, 35),
-        new LockedVase(this, 545, 475, 35),
+        new LockedVase(this, 390, 475, 35, "35"),
+        new LockedVase(this, 545, 475, 35, "35"),
         
-        new LockedVase(this, 735, 475, 75),
-        new LockedVase(this, 895, 475, 75),  
-        new LockedVase(this, 1035, 475, 75),
+        new LockedVase(this, 735, 475, 75, "75"),
+        new LockedVase(this, 895, 475, 75, "75"),  
+        new LockedVase(this, 1035, 475, 75, "75"),
         
-        new LockedVase(this, 975, 600, 125),
-        new LockedVase(this, 825, 600, 125),
-        new LockedVase(this, 475, 600, 125),
-        new LockedVase(this, 335, 600, 125),
+        new LockedVase(this, 975, 600, 125, "125"),
+        new LockedVase(this, 825, 600, 125, "125"),
+        new LockedVase(this, 475, 600, 125, "125"),
+        new LockedVase(this, 335, 600, 125, "125"),
       ];
 
       this.vases = [
         new Vase(this, 250, 475)
       ];
     }
+
+    // SPAWN BUGS
+    this.bugs = [];
+
+    this.time.addEvent({
+      delay: 45_000,
+      callback: this.spawnBug,
+      callbackScope: this,
+      loop: true
+    });
 
     document.getElementById('dayCounter').textContent = "Day: " + GameManager.currentDay;
     document.getElementById('coinCounter').textContent = "Coins: " + GameManager.coins;
@@ -350,6 +361,7 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  // SAVE ALL THE DATA
   saveGame() {
   
     const plantsData = this.plants.map(plant => {
@@ -391,6 +403,7 @@ export class GameScene extends Phaser.Scene {
     localStorage.setItem("gameData", JSON.stringify(saveData));
   }
 
+  // LOAD THE SAVED DATA
   loadGame() {
     const gameData = localStorage.getItem("gameData");
     if (!gameData) return;
@@ -424,6 +437,7 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  // UNLOCK VASE WHEN CLICKING ON IT
   unlock(vase) {
     if (GameManager.coins < vase.price) {
       alert("Too expensive :P");
@@ -443,5 +457,28 @@ export class GameScene extends Phaser.Scene {
 
     document.getElementById('coinCounter').textContent = "Coins: " + GameManager.coins;
     this.saveGame();
+  }
+
+  // SPAWN BUGS
+  spawnBug() {
+      if (this.bugs.length >= 3) return;
+
+      const plants = this.plants.filter(plant => {
+        const hasBug = this.bugs.some(bug => bug.plant == plant);
+        return !hasBug;
+      })
+
+      if (plants.length == 0) return;
+
+      const plant = Phaser.Utils.Array.GetRandom(plants);
+
+      const bug = new Bug(this, plant, 5);
+      bug.on("destroy", () => {
+        const index = this.bugs.indexOf(bug);
+        if (index != -1) this.bugs.splice(index, 1);
+      });
+
+      this.bugs.push(bug);
+  
   }
 }

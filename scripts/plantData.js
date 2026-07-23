@@ -23,7 +23,7 @@ export const PLANT_DATA = {
     maxWater: 100,
     starterWater: 60,
     growthDays: 7,
-    value: 30,
+    value: 40,
     cost: 22,
     growthCheckpoint: [2, 6]
   },
