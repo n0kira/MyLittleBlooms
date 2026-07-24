@@ -396,8 +396,9 @@ export class GameScene extends Phaser.Scene {
     this.selectedPlant = plant
     emptyText.style.display = "none";
     details.classList.remove("hidden");
+    const name = plant.plantName.toLowerCase();
     document.getElementById('emptyPlantInfo').style.display = "none";
-    document.getElementById('plantInfoImage').src = `assets/art/${plant.plantName}_stage_${plant.currentStage}.png`;
+    document.getElementById('plantInfoImage').src = `assets/art/${name}_stage_${plant.currentStage}.png`;
     document.getElementById('plantInfoTitle').textContent = plant.plantName;
     document.getElementById('plantInfoWaterStatus').textContent = "Plant Status: " + plant.getStatus();
     document.getElementById('plantInfoWater').textContent = "Current Water Level: " + plant.waterLevel;
