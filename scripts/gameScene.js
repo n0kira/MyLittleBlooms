@@ -13,27 +13,75 @@ export class GameScene extends Phaser.Scene {
   
   preload() {
     // runs once before create()
-    this.load.image("background", "assets/background.png");
-    this.load.image("lockedTexture", "assets/locked_vase.png");
-    this.load.image("vaseTexture", "assets/vase.png");
-    this.load.image("rose_stage_1", "assets/rose_stage_1.png");
-    this.load.image("rose_stage_2", "assets/rose_stage_2.png");
-    this.load.image("rose_stage_3", "assets/rose_stage_3.png");
-    this.load.image("tulip_stage_1", "assets/tulip_stage_1.png");
-    this.load.image("tulip_stage_2", "assets/tulip_stage_2.png");
-    this.load.image("tulip_stage_3", "assets/tulip_stage_3.png");
-    this.load.image("sunflower_stage_1", "assets/sunflower_stage_1.png");
-    this.load.image("sunflower_stage_2", "assets/sunflower_stage_2.png");
-    this.load.image("sunflower_stage_3", "assets/sunflower_stage_3.png");
-    this.load.image("bugTexture", "assets/bug.png");
+    
+    /* 
+      LOAD
+      IMAGES
+    */
+    this.load.image("background", "assets/art/background.png");
+    this.load.image("lockedTexture", "assets/art/locked_vase.png");
+    this.load.image("vaseTexture", "assets/art/vase.png");
+
+    this.load.image("rose_stage_0", "assets/art/rose_stage_0.png");
+    this.load.image("rose_stage_1", "assets/art/rose_stage_1.png");
+    this.load.image("rose_stage_2", "assets/art/rose_stage_2.png");
+    this.load.image("rose_stage_3", "assets/art/rose_stage_3.png");
+
+    this.load.image("tulip_stage_0", "assets/art/tulip_stage_0.png");
+    this.load.image("tulip_stage_1", "assets/art/tulip_stage_1.png");
+    this.load.image("tulip_stage_2", "assets/art/tulip_stage_2.png");
+    this.load.image("tulip_stage_3", "assets/art/tulip_stage_3.png");
+
+    this.load.image("sunflower_stage_0", "assets/art/sunflower_stage_0.png");
+    this.load.image("sunflower_stage_1", "assets/art/sunflower_stage_1.png");
+    this.load.image("sunflower_stage_2", "assets/art/sunflower_stage_2.png");
+    this.load.image("sunflower_stage_3", "assets/art/sunflower_stage_3.png");
+
+    this.load.image("daisy_stage_0", "assets/art/daisy_stage_0.png");
+    this.load.image("daisy_stage_1", "assets/art/daisy_stage_1.png");
+    this.load.image("daisy_stage_3", "assets/art/daisy_stage_3.png");
+
+    this.load.image("bugTexture", "assets/art/bug.png");
+    this.load.image("notificationTexture", "assets/art/notification.png");
+
+    this.load.image("wateringCan", "assets/art/watering_can.png");
+    this.load.image("harvestingTool", "assets/art/harvest_tool.png")
+
+    /* 
+      LOAD
+      SOUNDS
+    */
+    this.load.audio("watering", "assets/sounds/watering.mp3");
+    this.load.audio("planting", "assets/sounds/planting.mp3");
+    this.load.audio("harvesting", "assets/sounds/harvesting.mp3");
+    this.load.audio("coin", "assets/sounds/coin.mp3");
+    this.load.audio("unlocking", "assets/sounds/unlocking.mp3");
+    this.load.audio("newDay", "assets/sounds/newDay.mp3");
+    this.load.audio("bugPop", "assets/sounds/bugPop.mp3");
+
+    this.load.audio("background_1", "assets/sounds/background_1.mp3");
+    this.load.audio("background_2", "assets/sounds/background_2.mp3");
+
   }
   
   create() {
     // runs once
+    this.nightOverlay = this.add.rectangle(640, 360, 1280, 720, 0x0a1128);
+    this.nightOverlay.setAlpha(0);
+    this.nightOverlay.setDepth(-1);
+
     this.add.image(640, 360, "background")
 
-    const dayDuration = 1000 * 60 * 2
-    setInterval(advanceDay, dayDuration);
+    this.dayDuration = 1000 * 60 * 2;
+    this.dayTimer = 0;
+
+    this.time.addEvent({
+      delay: this.dayDuration,
+      callback: () => {
+        GameManager.advanceDay();
+      },
+      loop: true,
+    });
  
     // DAY CYCLE
     function advanceDay() {
@@ -45,6 +93,15 @@ export class GameScene extends Phaser.Scene {
     this.selectedPlantType = null;
     this.lockedVases = [];
     this.vases = [];
+    this.songsPlaylist = ["background_1", "background_2"];
+    this.currentIndex = 0;
+    this.currentMusic = null;
+    this.targetVolume = 0.2;
+    this.fade = 3000;
+
+    this.playSongs(this.currentIndex);
+
+    this.waterSound = this.sound.add("watering", { volume: 0.4 });
 
     const save = localStorage.getItem("gameData");
     if (save) {
@@ -72,11 +129,8 @@ export class GameScene extends Phaser.Scene {
     // SPAWN BUGS
     this.bugs = [];
 
-    this.time.addEvent({
-      delay: 45_000,
-      callback: this.spawnBug,
-      callbackScope: this,
-      loop: true
+    this.time.delayedCall(60_000, () => {
+      this.spawnBug();
     });
 
     document.getElementById('dayCounter').textContent = "Day: " + GameManager.currentDay;
@@ -89,6 +143,7 @@ export class GameScene extends Phaser.Scene {
       if (!this.selectedPlant) return;
       this.selectedPlant.water();
       this.showPlantInfo(this.selectedPlant);
+      this.selectedPlant.updateNotifications();
       this.saveGame();
     });
 
@@ -176,6 +231,7 @@ export class GameScene extends Phaser.Scene {
       // Update the amount of specified plant in the inventory
       this.collectedPlants.set(plantName, count - 1);
       GameManager.coins += data.value;
+      this.playSound("coin", 0.4);
       // Update the UI
       this.showInventory();
       document.getElementById('coinCounter').textContent = "Coins: " + GameManager.coins;
@@ -186,14 +242,21 @@ export class GameScene extends Phaser.Scene {
     document.getElementById('openPlantInventory').addEventListener("click", (e) => {
       if (e.target.id !== "sellAllButton") return;
 
+      let totalCoins = 0;
+
       this.collectedPlants.forEach((count, plant) => {
         if (count <= 0) return;
         const data = PLANT_DATA[plant];
         if (!data) return;
 
         this.collectedPlants.set(plant, 0);
-        GameManager.coins += data.value * count;
+        totalCoins += data.value * count;
       });
+
+      if (totalCoins == 0) return;
+
+      GameManager.coins += totalCoins;
+      this.playSound("coin", 0.4);
 
       this.showInventory();
       document.getElementById('coinCounter').textContent = "Coins: " + GameManager.coins;
@@ -216,6 +279,7 @@ export class GameScene extends Phaser.Scene {
         plant.checkHealth();
       });
 
+      this.playSound("newDay", 0.4, false);
       this.saveGame();
 
       if (!this.selectedPlant) return;
@@ -245,6 +309,20 @@ export class GameScene extends Phaser.Scene {
 
   update(time, delta) {
     // runs every single frame
+    this.dayTimer = (this.dayTimer + delta) % this.dayDuration;
+    const progress = this.dayTimer / this.dayDuration;
+
+    let alpha = 0;
+
+    if (progress > 0.5 && progress <= 0.7) {
+      alpha = ((progress - 0.5) / 0.2) * 0.6;
+    } else if (progress > 0.7 && progress <= 0.85) {
+      alpha = 0.6;
+    } else if (progress > 0.85) {
+      alpha = (1 - (progress - 0.85) / 0.15) * 0.6;
+    }
+
+    this.nightOverlay.setAlpha(Phaser.Math.Clamp(alpha, 0, 0.6));
   }
 
     /*
@@ -265,22 +343,65 @@ export class GameScene extends Phaser.Scene {
 
   */
 
+  playSongs(index) {
+    const song = this.songsPlaylist[index];
+    const next = this.sound.add(song, {volume: 0});
+    next.play();
+
+    this.tweens.add({
+      targets: next,
+      volume: this.targetVolume,
+      duration: this.fade,
+    });
+
+    if (this.currentMusic && this.currentMusic.isPlaying) {
+      const old = this.currentMusic;
+      this.tweens.add({
+        target: old,
+        volume: 0,
+        duration: this.fade,
+        onComplete: () => {
+          old.stop();
+          old.destroy();
+        }
+      });
+    }
+
+    this.currentMusic = next;
+
+    this.currentMusic.once("complete", () => {
+      this.nextTrack();
+    });
+  }
+
+  nextTrack() {
+    this.currentIndex = (this.currentIndex + 1) % this.songsPlaylist.length;
+    this.playSongs(this.currentIndex);
+  } 
+
   // UPDATE THE PANEL SHOWING ALL PLANT INFO
   showPlantInfo(plant) {
+    const emptyText = document.getElementById('emptyPlantInfo');
+    const details = document.getElementById('plantInfoDetails');
+
     // If no plant is selected hide everything
     if (plant == null) {
-      document.getElementById('emptyPlantInfo').style.display = "";
-      document.getElementById('plantInfo').classList.add("hidden");
+      emptyText.style.display = "";
+      details.classList.add("hidden");
       this.selectedPlant = null;
       return;
     }
 
     // Display all the info
     this.selectedPlant = plant
+    emptyText.style.display = "none";
+    details.classList.remove("hidden");
     document.getElementById('emptyPlantInfo').style.display = "none";
-    document.getElementById('plantInfoImage').src = `assets/${plant.plantName}_stage_${plant.currentStage}.png`;
+    document.getElementById('plantInfoImage').src = `assets/art/${plant.plantName}_stage_${plant.currentStage}.png`;
     document.getElementById('plantInfoTitle').textContent = plant.plantName;
-    document.getElementById('plantInfoWater').textContent = "Water: " + plant.waterLevel;
+    document.getElementById('plantInfoWaterStatus').textContent = "Plant Status: " + plant.getStatus();
+    document.getElementById('plantInfoWater').textContent = "Current Water Level: " + plant.waterLevel;
+    document.getElementById('plantInfoWaterRange').textContent = "Water Range: [" + plant.minWaterLevel + " , " + plant.maxWaterLevel + "]";
     document.getElementById('plantInfoGrowthDays').textContent = "Days to grow: " + plant.growthDays;
     document.getElementById('plantInfoCurrentDays').textContent = "Days alive: " + plant.currentDays;
     document.getElementById('plantInfoUnhealthyDays').textContent = "Days unhealthy: " + plant.daysUnhealthy;
@@ -304,9 +425,10 @@ export class GameScene extends Phaser.Scene {
     // Create the plant with all the data retrieved
     const newPlant = new Plant(this, vase.x, vase.y, this.selectedPlantType, data.maxWater, data.minWater, data.starterWater, data.growthDays, vase, data.value);
     GameManager.coins -= cost;
+
+    this.playSound("planting", 0.4, false);
     
     document.getElementById('coinCounter').textContent = "Coins: " + GameManager.coins;
-    alert("Planted: " + this.selectedPlantType);
     this.plants.push(newPlant);
     // Hide the vase and flag is as full
     vase.isEmpty = false;
@@ -417,7 +539,7 @@ export class GameScene extends Phaser.Scene {
 
     this.vases = saveData.vases.map(vase => new Vase(this, vase.x, vase.y));
 
-    this.lockedVases = saveData.lockedVases.map(vase => new LockedVase(this, vase.x, vase.y, vase.price));
+    this.lockedVases = saveData.lockedVases.map(vase => new LockedVase(this, vase.x, vase.y, vase.price, vase.price.toString()));
 
     saveData.plants.forEach(plant => {
       const vase = this.vases[plant.vaseIndex];
@@ -430,6 +552,7 @@ export class GameScene extends Phaser.Scene {
       newPlant.isDead = plant.isDead;
 
       newPlant.growthChange();
+      newPlant.updateNotifications();
 
       this.plants.push(newPlant);
       vase.isEmpty = false;
@@ -453,6 +576,7 @@ export class GameScene extends Phaser.Scene {
       this.lockedVases.splice(index, 1);
     }
 
+    this.playSound("unlocking", 0.6, false);
     vase.destroy();
 
     document.getElementById('coinCounter').textContent = "Coins: " + GameManager.coins;
@@ -461,24 +585,38 @@ export class GameScene extends Phaser.Scene {
 
   // SPAWN BUGS
   spawnBug() {
-      if (this.bugs.length >= 3) return;
-
-      const plants = this.plants.filter(plant => {
-        const hasBug = this.bugs.some(bug => bug.plant == plant);
-        return !hasBug;
-      })
-
-      if (plants.length == 0) return;
-
-      const plant = Phaser.Utils.Array.GetRandom(plants);
-
-      const bug = new Bug(this, plant, 5);
-      bug.on("destroy", () => {
-        const index = this.bugs.indexOf(bug);
-        if (index != -1) this.bugs.splice(index, 1);
-      });
-
-      this.bugs.push(bug);
+      if (this.bugs.length < 3) {
+        const plants = this.plants.filter(plant => {
+          const hasBug = this.bugs.some(bug => bug.plant == plant);
+          return !hasBug;
+        })
   
+        if (plants.length > 0) {
+          const plant = Phaser.Utils.Array.GetRandom(plants);
+    
+          const bug = new Bug(this, plant, 5);
+          bug.on("destroy", () => {
+            const index = this.bugs.indexOf(bug);
+            if (index != -1) this.bugs.splice(index, 1);
+          });
+    
+          this.bugs.push(bug);
+        }
+      } 
+
+      const delay = Phaser.Math.Between(60_000, 180_000);
+      this.time.delayedCall(delay, this.spawnBug, [], this);
+  }
+
+  playSound(key, baseVolume = 0.5, randomPitch = true) {
+    const config = {
+      volume: baseVolume,
+    };
+
+    if (randomPitch) {
+      config.rate = Phaser.Math.FloatBetween(0.92, 1.08);
+    }
+
+    this.sound.play(key, config)
   }
 }
